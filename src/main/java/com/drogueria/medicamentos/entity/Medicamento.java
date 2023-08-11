@@ -1,14 +1,18 @@
 package com.drogueria.medicamentos.entity;
 
 import lombok.Data;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import javax.persistence.*;
 import java.util.Date;
 
+/*@Entity
+@Table(name = "medicamento")*/
 @Document(collection = "medicamentos")
 @Data
-public class Medicamento  {
+public class Medicamento {
+
     @Id
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
     private String nombre;

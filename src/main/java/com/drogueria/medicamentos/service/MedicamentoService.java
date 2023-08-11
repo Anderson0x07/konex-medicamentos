@@ -1,10 +1,11 @@
 package com.drogueria.medicamentos.service;
 
 import com.drogueria.medicamentos.entity.Medicamento;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
+@Service
 public interface MedicamentoService {
 
     public List<Medicamento> listarMedicamentos();

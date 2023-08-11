@@ -65,11 +65,8 @@ public class MedicamentoImplement implements MedicamentoService {
         if(existingMedicamento.getFecha_vencimiento() != null)
             existingMedicamento.setFecha_vencimiento(updatedMedicamento.getFecha_vencimiento());
 
-        if(existingMedicamento.getStock() != 0)
-            existingMedicamento.setStock(updatedMedicamento.getStock());
-
-        if(existingMedicamento.getValor_unitario() != 0)
-            existingMedicamento.setValor_unitario(updatedMedicamento.getValor_unitario());
+        existingMedicamento.setStock(updatedMedicamento.getStock());
+        existingMedicamento.setValor_unitario(updatedMedicamento.getValor_unitario());
 
         return medicamentoRepository.save(existingMedicamento);
     }

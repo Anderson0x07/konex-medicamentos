@@ -24,6 +24,8 @@ public class MedicamentoImplement implements MedicamentoService {
     @Autowired
     private RestTemplate restTemplate;
 
+    private String msj = "Medicamento no encontrado";
+
     @Override
     public List<Medicamento> listarMedicamentos() {
 
@@ -46,7 +48,7 @@ public class MedicamentoImplement implements MedicamentoService {
                 medicamento.setFecha_vencimiento(dateFormat.parse(dateFormat.format(medicamento.getFecha_vencimiento())));
 
             } catch (ParseException e) {
-                throw new RuntimeException(e);
+                throw new NotFoundException(msj);
             }
 
             medicamentoRepository.save(medicamento);
@@ -57,12 +59,12 @@ public class MedicamentoImplement implements MedicamentoService {
 
     @Override
     public void eliminar(String id) {
-        medicamentoRepository.findById(id).orElseThrow(
-                () -> new NotFoundException("Medicamento no encontrado")
+        Medicamento med = medicamentoRepository.findById(id).orElseThrow(
+                () -> new NotFoundException(msj)
         );
 
 
-        String url = "http://ventas-service/api/ventas/medicamento/" + id;
+        String url = "http://ventas-service/api/ventas/medicamento/" + med.getId();
         ResponseEntity<List> response = restTemplate.getForEntity(
                 url,
                 List.class
@@ -70,10 +72,10 @@ public class MedicamentoImplement implements MedicamentoService {
         List<VentaDto> ventasDto = response.getBody();
 
         if (!ventasDto.isEmpty()) {
-            restTemplate.delete("http://ventas-service/api/ventas/" + id);
+            restTemplate.delete("http://ventas-service/api/ventas/" + med.getId());
         }
 
-        medicamentoRepository.deleteById(id);
+        medicamentoRepository.deleteById(med.getId());
 
 
     }
@@ -82,7 +84,7 @@ public class MedicamentoImplement implements MedicamentoService {
     @Override
     public Medicamento editarMedicamento(String id, Medicamento updatedMedicamento) {
         Medicamento existingMedicamento = medicamentoRepository.findById(id).orElseThrow(
-                () -> new NotFoundException("Medicamento no encontrado")
+                () -> new NotFoundException(msj)
         );
 
         if(existingMedicamento.getNombre() != null)
@@ -106,7 +108,7 @@ public class MedicamentoImplement implements MedicamentoService {
     @Override
     public Medicamento encontrarMedicamento(String id) {
         return medicamentoRepository.findById(id).orElseThrow(
-                () -> new NotFoundException("Medicamento no encontrado")
+                () -> new NotFoundException(msj)
         );
     }
 }

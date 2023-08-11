@@ -1,14 +1,13 @@
 package com.drogueria.medicamentos.controller;
 
 import com.drogueria.medicamentos.entity.Medicamento;
-import com.drogueria.medicamentos.repository.MedicamentoRepository;
 import com.drogueria.medicamentos.service.MedicamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ public class MedicamentoController {
     }
 
     @PostMapping
-    public ResponseEntity<?> saveMedicamento(@RequestBody Medicamento medicamento) {
+    public ResponseEntity<?> saveMedicamento(@Valid @RequestBody Medicamento medicamento) {
         medicamentoService.guardar(medicamento);
         response.clear();
         response.put("message", "Medicamento guardado exitosamente");

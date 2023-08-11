@@ -1,14 +1,18 @@
 package com.drogueria.medicamentos.implement;
 
+import com.drogueria.medicamentos.dto.VentaDto;
 import com.drogueria.medicamentos.entity.Medicamento;
 import com.drogueria.medicamentos.exception.NotFoundException;
 import com.drogueria.medicamentos.repository.MedicamentoRepository;
 import com.drogueria.medicamentos.service.MedicamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @Service
@@ -16,6 +20,9 @@ public class MedicamentoImplement implements MedicamentoService {
 
     @Autowired
     private MedicamentoRepository medicamentoRepository;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Override
     public List<Medicamento> listarMedicamentos() {
@@ -32,6 +39,16 @@ public class MedicamentoImplement implements MedicamentoService {
     @Override
     public void guardar(Medicamento medicamento) {
         if (!medicamentoRepository.findByNombre(medicamento.getNombre()).isPresent()) {
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                medicamento.setFecha_fabricacion(dateFormat.parse(dateFormat.format(medicamento.getFecha_fabricacion())));
+                medicamento.setFecha_vencimiento(dateFormat.parse(dateFormat.format(medicamento.getFecha_vencimiento())));
+
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+
             medicamentoRepository.save(medicamento);
         } else {
             throw new NotFoundException("Medicamento ya registrado");
@@ -43,7 +60,22 @@ public class MedicamentoImplement implements MedicamentoService {
         medicamentoRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Medicamento no encontrado")
         );
+
+
+        String url = "http://ventas-service/api/ventas/medicamento/" + id;
+        ResponseEntity<List> response = restTemplate.getForEntity(
+                url,
+                List.class
+        );
+        List<VentaDto> ventasDto = response.getBody();
+
+        if (!ventasDto.isEmpty()) {
+            restTemplate.delete("http://ventas-service/api/ventas/" + id);
+        }
+
         medicamentoRepository.deleteById(id);
+
+
     }
 
     @Transactional
